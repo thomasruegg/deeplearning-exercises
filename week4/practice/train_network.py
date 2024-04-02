@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     train_network(
         data_path="./data",
-        linearly_separable=True,
+        linearly_separable=False,
         batch_size=500,
         learning_rate=0.5,
         n_epochs=1000,

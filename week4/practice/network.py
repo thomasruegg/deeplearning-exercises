@@ -35,15 +35,13 @@ def evaluate_network(x, w, b, Wt, bt):
     assert Wt.shape == (2, 2)
     assert bt.shape == (2,)
 
-    # TODO: add your code here
+    n_batches = x.shape[0]
+    a_h = np.zeros((n_batches, 2))
+    h = np.zeros((n_batches, 2))
+    h[:, 0], a_h[:, 0] = evaluate_neuron(x, Wt[:, 0], bt[0])
+    h[:, 1], a_h[:, 1] = evaluate_neuron(x, Wt[:, 1], bt[1])
+    y, a_y = evaluate_neuron(h, w, b)
 
-    # Hidden Layer Activation
-    a_h = np.dot(x, Wt) + bt
-    h = neuron.sigmoid(a_h)
-
-    # Output Layer Activation
-    a_y = np.dot(h, w) + b
-    y = neuron.sigmoid(a_y)
     return y, a_y, h, a_h
 
 
@@ -70,7 +68,6 @@ def loss_function(x, t, w, b, Wt, bt):
     assert Wt.shape == (2, 2)
     assert bt.shape == (2,)
 
-    # TODO: add your code here
     y, _, _, _ = evaluate_network(x, w, b, Wt, bt)
     MSE_loss = np.sum((y - t) ** 2) / (2 * x.shape[0])
 
@@ -105,26 +102,34 @@ def update_weights(x, t, w, b, Wt, bt, lr):
     # TODO: add your code here
     # Step 1: Forward Pass (already implemented in your evaluate_network function)
     y, a_y, h, a_h = evaluate_network(x, w, b, Wt, bt)
+    dsig_a_y = derivative_of_sigmoid(a_y)
+    dsig_a_h = derivative_of_sigmoid(a_h)
 
-    # Step 2: Compute Output Layer Error
-    error_output_layer = y - t
+    # Gradient of output layer
+    dJ_dw = np.zeros((2,))
+    tmp = (y - t) * dsig_a_y
+    dJ_dw[0] = np.mean(tmp * h[:, 0])
+    dJ_dw[1] = np.mean(tmp * h[:, 1])
+    dJ_db = np.mean(tmp)
 
-    # Step 3: Calculate Gradients for Output Layer
-    grad_w = np.dot(h.T, error_output_layer) / x.shape[0]
-    grad_b = np.sum(error_output_layer) / x.shape[0]
+    # Gradient of hidden layer
+    dJ_dWt = np.zeros((2, 2))
+    dJ_dbt = np.zeros(2)
+    tmp_t0 = tmp * w[0] * dsig_a_h[:, 0]
+    dJ_dWt[0, 0] = np.mean(tmp_t0 * x[:, 0])
+    dJ_dWt[1, 0] = np.mean(tmp_t0 * x[:, 1])
+    dJ_dbt[0] = np.mean(tmp_t0)
 
-    # Step 4: Backpropagate Error to Hidden Layer
-    error_hidden_layer = np.dot(error_output_layer.reshape(-1, 1), w.reshape(1, -1)) * derivative_of_sigmoid(a_h)
+    tmp_t1 = tmp * w[1] * dsig_a_h[:, 1]
+    dJ_dWt[0, 1] = np.mean(tmp_t1 * x[:, 0])
+    dJ_dWt[1, 1] = np.mean(tmp_t1 * x[:, 1])
+    dJ_dbt[1] = np.mean(tmp_t1)
 
-    # Step 5: Calculate Gradients for Hidden Layer
-    grad_Wt = np.dot(x.T, error_hidden_layer) / x.shape[0]
-    grad_bt = np.sum(error_hidden_layer, axis=0) / x.shape[0]
-
-    # Step 6: Update Weights and Biases
-    w_new = w - lr * grad_w
-    b_new = b - lr * grad_b
-    Wt_new = Wt - lr * grad_Wt
-    bt_new = bt - lr * grad_bt
+    # Weight update
+    w_new = w - lr * dJ_dw
+    b_new = b - lr * dJ_db
+    Wt_new = Wt - lr * dJ_dWt
+    bt_new = bt - lr * dJ_dbt
 
     return w_new, b_new, Wt_new, bt_new
 
