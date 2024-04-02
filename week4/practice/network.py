@@ -4,6 +4,7 @@ import numpy as np
 
 from neuron import derivative_of_sigmoid
 from neuron import evaluate_neuron
+from week4.practice import neuron
 
 
 def evaluate_network(x, w, b, Wt, bt):
@@ -36,6 +37,13 @@ def evaluate_network(x, w, b, Wt, bt):
 
     # TODO: add your code here
 
+    # Hidden Layer Activation
+    a_h = np.dot(x, Wt) + bt
+    h = neuron.sigmoid(a_h)
+
+    # Output Layer Activation
+    a_y = np.dot(h, w) + b
+    y = neuron.sigmoid(a_y)
     return y, a_y, h, a_h
 
 
@@ -63,8 +71,10 @@ def loss_function(x, t, w, b, Wt, bt):
     assert bt.shape == (2,)
 
     # TODO: add your code here
+    y, _, _, _ = evaluate_network(x, w, b, Wt, bt)
+    MSE_loss = np.sum((y - t) ** 2) / (2 * x.shape[0])
 
-    return loss
+    return MSE_loss
 
 
 def update_weights(x, t, w, b, Wt, bt, lr):
@@ -93,6 +103,28 @@ def update_weights(x, t, w, b, Wt, bt, lr):
     assert bt.shape == (2,)
 
     # TODO: add your code here
+    # Step 1: Forward Pass (already implemented in your evaluate_network function)
+    y, a_y, h, a_h = evaluate_network(x, w, b, Wt, bt)
+
+    # Step 2: Compute Output Layer Error
+    error_output_layer = y - t
+
+    # Step 3: Calculate Gradients for Output Layer
+    grad_w = np.dot(h.T, error_output_layer) / x.shape[0]
+    grad_b = np.sum(error_output_layer) / x.shape[0]
+
+    # Step 4: Backpropagate Error to Hidden Layer
+    error_hidden_layer = np.dot(error_output_layer.reshape(-1, 1), w.reshape(1, -1)) * derivative_of_sigmoid(a_h)
+
+    # Step 5: Calculate Gradients for Hidden Layer
+    grad_Wt = np.dot(x.T, error_hidden_layer) / x.shape[0]
+    grad_bt = np.sum(error_hidden_layer, axis=0) / x.shape[0]
+
+    # Step 6: Update Weights and Biases
+    w_new = w - lr * grad_w
+    b_new = b - lr * grad_b
+    Wt_new = Wt - lr * grad_Wt
+    bt_new = bt - lr * grad_bt
 
     return w_new, b_new, Wt_new, bt_new
 
@@ -123,6 +155,9 @@ def evaluate_prediction(x, t, w, b, Wt, bt):
     assert bt.shape == (2,)
 
     # TODO: add your code here
+    y, _, _, _ = evaluate_network(x, w, b, Wt, bt)
+    pred = np.round(y)
+    perf = 100 * np.sum(pred == t)
 
     return pred, perf
 

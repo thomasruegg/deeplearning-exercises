@@ -3,6 +3,9 @@
 import numpy as np
 
 
+def sigmoid(a):
+    return 1 / (1 + np.exp(-a))
+
 def evaluate_neuron(x, w, b):
     """Calculate the output of a neuron with two input nodes.
     The sigmoid function is used as activation function.
@@ -22,6 +25,8 @@ def evaluate_neuron(x, w, b):
     assert b.shape == (1,) or b.shape == ()
 
     # TODO: add your code here
+    a = np.dot(x, w) + b
+    y = sigmoid(a)
 
     return y, a
 
@@ -37,7 +42,7 @@ def derivative_of_sigmoid(a):
     """
 
     # TODO: add your code here
-
+    deriv = sigmoid(a) * (1 - sigmoid(a))
     return deriv
 
 
@@ -62,8 +67,10 @@ def loss_function(x, t, w, b):
     assert b.shape == (1,) or b.shape == ()
 
     # TODO: add your code here
+    y, a = evaluate_neuron(x, w, b)
+    MSE_loss = np.sum((y - t) ** 2) / (2 * x.shape[0])
 
-    return loss
+    return MSE_loss
 
 
 def update_weights(x, t, w, b, lr):
@@ -88,6 +95,10 @@ def update_weights(x, t, w, b, lr):
     assert b.shape == (1,) or b.shape == ()
 
     # TODO: add your code here
+    y, a = evaluate_neuron(x, w, b)
+    g = (y - t) * derivative_of_sigmoid(a)
+    w_new = w - lr * np.dot(x.T, g) / x.shape[0]
+    b_new = b - lr * np.sum(g) / x.shape[0]
 
     return w_new, b_new
 
@@ -114,13 +125,15 @@ def evaluate_prediction(x, t, w, b):
     assert b.shape == (1,) or b.shape == ()
 
     # TODO: add your code here
+    y, a = evaluate_neuron(x, w, b)
+    pred = np.round(y)
+    perf = 100 * np.mean(pred == t)
 
     return pred, perf
 
 
 # Tests for the defined functions
 if __name__ == "__main__":
-
     print("Start unit test for module neuron.py.")
 
     # test values
