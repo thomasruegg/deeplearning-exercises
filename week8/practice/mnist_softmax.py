@@ -1,7 +1,10 @@
 import numpy as np
 import tensorflow as tf
+import os
 
 from my_model import MyModel
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # Load MNIST data
 mnist = tf.keras.datasets.mnist
