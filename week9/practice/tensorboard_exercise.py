@@ -131,9 +131,20 @@ def test_step(images, labels):
 
 # TODO: Visualize the following aspects in TensorBoard:
 # Scalar: Train loss, train accuracy, validation loss, validation accuracy
+scalar_log_dir = "logs/scalars/"
+scalar_writer = tf.summary.create_file_writer(scalar_log_dir)
+
 # Graph: Graph illustration of your model
+graph_log_dir = "logs/graph/"
+graph_writer = tf.summary.create_file_writer(graph_log_dir)
+
 # Histogram: Network weights, network bias
+histogram_log_dir = "logs/histograms/"
+histogram_writer = tf.summary.create_file_writer(histogram_log_dir)
+
 # Images: 12 misclassified validation images
+image_log_dir = "logs/images/"
+image_writer = tf.summary.create_file_writer(image_log_dir)
 
 
 # Run training
@@ -158,10 +169,27 @@ for epoch in range(EPOCHS):
         mislabeled_images_list.append(mislabeled_images)
 
     # TODO: Write scalars to TensorBoard
+    with scalar_writer.as_default():
+        tf.summary.scalar("train_loss", train_loss.result(), step=epoch)
+        tf.summary.scalar("train_accuracy", train_accuracy.result(), step=epoch)
+        tf.summary.scalar("valid_loss", valid_loss.result(), step=epoch)
+        tf.summary.scalar("valid_accuracy", valid_accuracy.result(), step=epoch)
 
     # TODO: Write histograms to TensorBoard
+    with histogram_writer.as_default():
+        for layer in model.layers:
+            for weight in layer.weights:
+                tf.summary.histogram(weight.name, weight, step=epoch)
 
     # TODO: Write images to TensorBoard
+    with image_writer.as_default():
+        for i, mislabeled_images in enumerate(mislabeled_images_list):
+            if i < 12:
+                tf.summary.image(
+                    "mislabeled_images_{}".format(i),
+                    tf.reshape(mislabeled_images, [-1, 28, 28, 1]),
+                    step=epoch,
+                )
 
     print(
         "Epoch {:2d}: ".format(epoch + 1),
