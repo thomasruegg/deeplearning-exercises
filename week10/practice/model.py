@@ -1,5 +1,5 @@
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense, Softmax
+from tensorflow.keras.layers import Dense, Softmax, ReLU
 
 
 class MyModel(Model):
@@ -17,10 +17,19 @@ class MyModel(Model):
     """
 
     def __init__(self, name=None, **kwargs):
-
         super(MyModel, self).__init__(name=name, **kwargs)
 
-        self.d1 = Dense(10, use_bias=True, name="Dense_1")
+        self.d1 = Dense(10, use_bias=True, kernel_regularizer='l2')
+
+        self.r1 = ReLU()
+        self.d2 = Dense(100, use_bias=True, kernel_regularizer='l2')
+        self.r2 = ReLU()
+        self.d3 = Dense(100, use_bias=True, kernel_regularizer='l2')
+        self.r3 = ReLU()
+        self.d4 = Dense(100, use_bias=True, kernel_regularizer='l2')
+        self.r4 = ReLU()
+        self.d5 = Dense(10, use_bias=True)
+
         self.s1 = Softmax(name="Softmax_1")
 
     def call(self, x, training=False):
@@ -43,5 +52,13 @@ class MyModel(Model):
 
         """
         x = self.d1(x)
-        out = self.s1(x)
-        return out
+        x = self.r1(x)
+        x = self.d2(x)
+        x = self.r2(x)
+        x = self.d3(x)
+        x = self.r3(x)
+        x = self.d4(x)
+        x = self.r4(x)
+        x = self.d5(x)
+        x = self.s1(x)
+        return x

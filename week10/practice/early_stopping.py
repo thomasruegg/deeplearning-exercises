@@ -11,8 +11,12 @@ class EarlyStoppingCounter:
 
     def update(self, current):
         # TODO
-        pass
+        if current > self._best + self._improvement_margin:
+            self._best = current
+            self._count = 0
+        else:
+            self._count += 1
 
     def is_stopping_criteria_reached(self):
         # TODO
-        return False
+        return self._count >= self._patience

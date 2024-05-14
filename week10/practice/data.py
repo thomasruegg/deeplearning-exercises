@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 
-
 class DataLoaderMNIST:
     """
     Prepare TensorFlow iterator of MNIST dataset and split data into train,
@@ -36,6 +35,11 @@ class DataLoaderMNIST:
         y_train = tf.one_hot(y_train, 10)
         y_test = tf.one_hot(y_test, 10)
         y_valid = tf.one_hot(y_valid, 10)
+
+        data_augmentation = tf.keras.Sequential([
+            tf.keras.layers.RandomFlip("horizontal_and_vertical"),
+            layers.RandomRotation(0.2),
+        ])
 
         # Create datasets
         self._train_dataset = (

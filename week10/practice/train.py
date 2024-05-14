@@ -23,15 +23,15 @@ class Training:
         self._loss = tf.keras.losses.CategoricalCrossentropy()
         self._init_metrics()
         self._init_tensorboard(tensorboard_dir)
-        self._early_stopping_counter = EarlyStoppingCounter()
+        self._early_stopping_counter = EarlyStoppingCounter(patience=5)
 
     def __call__(
         self,
         train_dataset,
         valid_dataset,
         test_dataset,
-        max_epochs=50,
-        evaluate_every=5,
+        max_epochs=100,
+        evaluate_every=10,
     ):
         """
         This method implements the training loop using train_dataset and
