@@ -29,6 +29,10 @@ class MyModel(Model):
         )
         # TODO: Instantiate additional layers
 
+        self.bi_gru_1 = Bidirectional(GRU(64))
+        self.dense_1 = Dense(64, activation="relu")
+        self.dense_2 = Dense(1)
+
     def call(self, x, training=False):
         """
         Forward pass through RNN.
@@ -47,9 +51,9 @@ class MyModel(Model):
         """
         t_enc_1 = self.enc_1(x)
         t_emb_1 = self.emb_1(t_enc_1)
-
-        # TODO: Add Bidirectional GRU and Dense layers
-        out = t_emb_1
+        t_bid_1 = self.bi_gru_1(t_emb_1)
+        t_dense_1 = self.dense_1(t_bid_1)
+        out = self.dense_2(t_dense_1)
 
         return out
 
