@@ -28,6 +28,22 @@ class MyModel(Model):
         super(MyModel, self).__init__(name=name, **kwargs)
 
         # TODO: Initialize layers
+        self.conv_1 = Conv2D(filters=32, kernel_size=5, padding='same')
+        self.relu_1 = ReLU()
+        self.pool_1 = MaxPool2D(pool_size=(2, 2))
+
+        self.conv_2 = Conv2D(filters=64, kernel_size=5, padding='same')
+        self.relu_2 = ReLU()
+        self.pool_2 = MaxPool2D(pool_size=(2, 2))
+
+        self.flat_1 = Flatten()
+
+        self.drop_1 = Dropout(0.5)
+        self.dense_1 = Dense(1024, activation='relu')
+        self.drop_2 = Dropout(0.5)
+        self.dense_2 = Dense(10, activation='relu')
+        self.softmax_1 = Softmax()
+
 
     def call(self, x, training=False):
         """
@@ -50,4 +66,17 @@ class MyModel(Model):
         """
 
         # TODO: Call layers
-        pass
+        x = self.conv_1(x)
+        x = self.relu_1(x)
+        x = self.pool_1(x)
+        x = self.conv_2(x)
+        x = self.relu_2(x)
+        x = self.pool_2(x)
+        x = self.flat_1(x)
+        x = self.drop_1(x, training=training)
+        x = self.dense_1(x)
+        x = self.drop_2(x, training=training)
+        x = self.dense_2(x)
+        x = self.softmax_1(x)
+
+        return x

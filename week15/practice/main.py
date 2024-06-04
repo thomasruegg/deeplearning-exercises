@@ -1,5 +1,5 @@
 from data import DataLoaderMNIST
-from model_solution import MyModel
+from model import MyModel
 from train import Training
 
 
